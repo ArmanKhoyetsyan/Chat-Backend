@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3030;
 const io = new Server(server, {
     cors: {
-        origin: "http://192.168.31.183:3000",
+        origin: "https://armankhoyetsyantest.herokuapp.com",
         methods: ["GET", "POST", "PUT"]
     }
 });

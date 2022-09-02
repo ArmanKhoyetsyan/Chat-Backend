@@ -17,38 +17,38 @@ const logIn = async (req, res) => {
   }
 }
 
-const getMessagesDb = async (req, res) => {
-  try {
-    const secondUserId = await getUserId(req?.body?.secondUserName)
-    const firstUserId = await getUserId(req?.body?.firstUserName)
-    const groupId = await getGroupeId(firstUserId, secondUserId)
-    if (groupId) {
-      const messages = await getMessages(groupId)
-      res.status(200).json({
-        messages: messages,
-        secondUserId: secondUserId,
-        secondUserName: req?.body?.secondUserName,
-        firstUserId: firstUserId,
-        firstUserName: req?.body?.firstUserName
-      })
-    } else {
-      await createGroupe(firstUserId, secondUserId)
-      const groupId = await getGroupeId(firstUserId, secondUserId)
-      await writeMessages("Hi", groupId, secondUserId)
-      const messages = await getMessages(groupId)
-      res.status(200).json({
-        messages: messages,
-        secondUserId: secondUserId,
-        secondUserName: req?.body?.secondUserName,
-        firstUserId: firstUserId,
-        firstUserName: req?.body?.firstUserName
-      })
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
+// const getMessagesDb = async (req, res) => {
+//   try {
+//     const secondUserId = await getUserId(req?.body?.secondUserName)
+//     const firstUserId = await getUserId(req?.body?.firstUserName)
+//     const groupId = await getGroupeId(firstUserId, secondUserId)
+//     if (groupId) {
+//       const messages = await getMessages(groupId)
+//       res.status(200).json({
+//         messages: messages,
+//         secondUserId: secondUserId,
+//         secondUserName: req?.body?.secondUserName,
+//         firstUserId: firstUserId,
+//         firstUserName: req?.body?.firstUserName
+//       })
+//     } else {
+//       await createGroupe(firstUserId, secondUserId)
+//       const groupId = await getGroupeId(firstUserId, secondUserId)
+//       await writeMessages("Hi", groupId, secondUserId)
+//       const messages = await getMessages(groupId)
+//       res.status(200).json({
+//         messages: messages,
+//         secondUserId: secondUserId,
+//         secondUserName: req?.body?.secondUserName,
+//         firstUserId: firstUserId,
+//         firstUserName: req?.body?.firstUserName
+//       })
+//     }
+//   } catch (error) {
+//     console.log(error)
+//   }
+//}
 
 
 
-module.exports = { logIn, getMessagesDb }
+module.exports = { logIn }
