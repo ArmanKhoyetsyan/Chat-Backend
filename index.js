@@ -5,13 +5,12 @@ const app = express();
 const http = require('http');
 const { Server } = require('socket.io');
 const router = require('./routers');
-const { route } = require('./routers');
 const { getUserId, getGroupeId, getMessages, writeMessages, getGroups, createGroupe, getUserName } = require('./db.request');
 const server = http.createServer(app);
 const port = process.env.PORT || 3030;
 const io = new Server(server, {
     cors: {
-        origin: "https://armankhoyetsyantest.herokuapp.com",
+        origin: "https://arman-chat.herokuapp.com",
         methods: ["GET", "POST", "PUT"]
     }
 });
@@ -22,7 +21,6 @@ app.use(bodyParser.json({ limit: '50mb' }));
 const connection = []
 
 app.post('/login', router)
-app.get('getMessages', router)
 
 io.on('connection', (socket) => {
     connection.push({ id: socket.id, getMessage: false })
