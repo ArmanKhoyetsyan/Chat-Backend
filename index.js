@@ -11,7 +11,7 @@ const port = process.env.PORT || 3030;
 const io = new Server(server, {
     cors: {
         origin: "https://arman-chat.herokuapp.com",
-        methods: ["GET", "POST", "PUT"]
+        methods: ["GET", "POST"]
     }
 });
 
@@ -24,9 +24,9 @@ app.post('/login', router)
 
 io.on('connection', (socket) => {
     connection.push({ id: socket.id, getMessage: false })
-    
+
     socket.on('get_groupe', async (data) => {
-        
+
         const userId = await getUserId(data.userName)
         const groupers = await getGroups(userId)
         for (let elem of groupers) {
@@ -45,13 +45,13 @@ io.on('connection', (socket) => {
         const firstUserId = await getUserId(data.firstUser)
         const groupId = await getGroupeId(firstUserId, secondUserId)
         if (groupId) {
-        const messages = await getMessages(groupId)
-        io.emit('get_messages', {
-            groupId: groupId,
-            messages: messages,
-            firstUser: data.firstUser,
-            connection: connection
-        })
+            const messages = await getMessages(groupId)
+            io.emit('get_messages', {
+                groupId: groupId,
+                messages: messages,
+                firstUser: data.firstUser,
+                connection: connection
+            })
         } else {
             await createGroupe(secondUserId, firstUserId)
             const groupId = await getGroupeId(firstUserId, secondUserId)
@@ -66,10 +66,10 @@ io.on('connection', (socket) => {
             })
         }
     })
-    
+
     socket.on('send_message', async (data) => {
         const senderId = await getUserId(data.sender)
-        await writeMessages(data.message, data.groupId, senderId,0)
+        await writeMessages(data.message, data.groupId, senderId, 0)
         const messages = await getMessages(data.groupId)
         io.emit('send_message', { messages: messages, sender: data.sender, connection: connection })
     })
@@ -88,9 +88,7 @@ io.on('connection', (socket) => {
         })
         connection.splice(i, 1)
         io.emit('disconnect_user', connection)
-
     })
-
 });
 
 server.listen(port, () => console.log(`Port${port}`))

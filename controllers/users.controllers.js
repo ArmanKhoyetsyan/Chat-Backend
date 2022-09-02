@@ -1,5 +1,4 @@
-const { getUsers, getUser, getUserId, getGroupeId, getMessages } = require("../db.request")
-
+const { getUsers } = require("../db.request")
 
 const logIn = async (req, res) => {
   try {
