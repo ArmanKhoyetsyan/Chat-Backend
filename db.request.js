@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 
 const pool = new Pool({
-    url:'heroku pg:psql postgresql-rectangular-55809 --app armankhoyetsyantest'
+    URL:process.env.DATABASE_URL
 });
 
 // const pool = new Pool({
