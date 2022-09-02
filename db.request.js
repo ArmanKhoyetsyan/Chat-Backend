@@ -1,12 +1,9 @@
 const { Pool } = require('pg')
 
 const pool = new Pool({
-    user: 'llcrttvkfzvpmg',
-    host: 'ec2-44-210-36-247.compute-1.amazonaws.com',
-    database: 'd6992gst9gbcq4',
-    password: '4860590a968ddb81b305ab45d27ac1d05bc8e23db339dbff9b7b8c9cdd768352',
-    port: '5432',
+    url: process.env.DATABASE_URL
 });
+
 
 const getUsers = async () => {
     try {
