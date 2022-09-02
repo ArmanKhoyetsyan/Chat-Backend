@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 
 const pool = new Pool({
-    url: process.env.DATABASE_URL
+    url:'postgres://llcrttvkfzvpmg:4860590a968ddb81b305ab45d27ac1d05bc8e23db339dbff9b7b8c9cdd768352@ec2-44-210-36-247.compute-1.amazonaws.com:5432/d6992gst9gbcq4'
 });
 
 // const pool = new Pool({
