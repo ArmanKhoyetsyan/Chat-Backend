@@ -3,9 +3,11 @@ const { getUsers } = require("../db.request")
 const logIn = async (req, res) => {
   try {
     const users = await getUsers()
+    console.log("🚀 ~ file: users.controllers.js ~ line 6 ~ logIn ~ users", users)
     const user = users.find(el => {
       return el.name === req.body.userName
     })
+    console.log("🚀 ~ file: users.controllers.js ~ line 10 ~ user ~ user", user)
     if (user && user.password === req.body.password) {
       res.status(200).json(user)
     } else {
