@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const port = process.env.PORT || 3030;
 const io = new Server(server, {
     cors: {
-        origin: "https://arman-chat.herokuapp.com/",
+        origin: "https://arman-chat.herokuapp.com",
         methods: ["GET", "POST"]
     }
 });
