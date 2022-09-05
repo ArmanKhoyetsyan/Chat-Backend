@@ -6,4 +6,4 @@ const router = express.Router();
 
 router.post('/login', authorizationHandler, (req, res) => logIn(req, res))
 
-module.exports = {router};
+module.exports = router;
