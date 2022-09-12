@@ -7,6 +7,14 @@ const pool = new Pool({
     },
 });
 
+// const pool = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     password: '15975324862Ax',
+//     database: 'chat',
+//     port: '5432'
+// });
+
 const getUsers = async () => {
     try {
         const response = await pool.query(`SELECT * FROM users`)
@@ -50,9 +58,9 @@ const getMessages = async (groupId) => {
     }
 }
 
-const writeMessages = async (message, groupid, senderid, lastMessage) => {
+const writeMessages = async (message, groupid, senderid, messageTime,read) => {
     try {
-        await pool.query(`INSERT INTO messages(message,groupid, senderid,lastMessage) VALUES($1,$2,$3,$4)`, [message, groupid, senderid, lastMessage])
+        await pool.query(`INSERT INTO messages(message,groupid, senderid,messageTime,read) VALUES($1,$2,$3,$4,$5)`, [message, groupid, senderid, messageTime, read])
     } catch (error) {
         console.log(error)
     }
@@ -67,6 +75,15 @@ const getGroups = async (userId) => {
     }
 }
 
+const getGroupe = async (groupId) => {
+    try {
+        const response = await pool.query(`SELECT * FROM groupmessage where id=$1 `, [groupId])
+        return response.rows
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const createGroupe = async (secondUserId, firstUserId) => {
     try {
         await pool.query(`INSERT INTO groupMessage(firstUser, secondUser) VALUES($1, $2)`, [secondUserId, firstUserId])
@@ -74,13 +91,32 @@ const createGroupe = async (secondUserId, firstUserId) => {
         console.log(error)
     }
 }
+
+const editUserLastVisit = async (userId, date) => {
+    try {
+        await pool.query(`UPDATE users SET lastVisit='${date}' WHERE id=${userId}`)
+    } catch (error) {
+        console.log(error);
+    }
+}
+const editReadVal = async (senderId, groupId) => {
+    try {
+        await pool.query(`UPDATE messages SET read=${true} WHERE senderid!=${senderId} AND groupid=${groupId}`)
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 module.exports = {
+    editReadVal,
     getUsers,
     getGroups,
     getUserId,
     getMessages,
     writeMessages,
+    editUserLastVisit,
     getGroupeId,
     createGroupe,
-    getUserName
+    getUserName,
+    getGroupe
 }
