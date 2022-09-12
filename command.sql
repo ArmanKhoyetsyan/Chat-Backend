@@ -1,42 +1,55 @@
 CREATE TABLE
-  users(
+  users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50),
-    password VARCHAR(50)
-  )
+    password VARCHAR(50),
+    lastVisit VARCHAR(50)
+  );
+
 CREATE TABLE
-  users(id SERIAL PRIMARY KEY,)
-CREATE TABLE
-  message(
+  message (
     id SERIAL PRIMARY KEY,
     message VARCHAR(500),
     sender VARCHAR(20)
   )
 CREATE TABLE
-  groupMessage(
+  groupMessage (
     id SERIAL PRIMARY KEY,
     firstUser INT,
     secondUser INT,
-    CONSTRAINT fk_firstUser FOREIGN KEY(firstUser) REFERENCES users(id),
-    CONSTRAINT fk_secondUser FOREIGN KEY(secondUser) REFERENCES users(id)
+    CONSTRAINT fk_firstUser FOREIGN KEY (firstUser) REFERENCES users (id),
+    CONSTRAINT fk_secondUser FOREIGN KEY (secondUser) REFERENCES users (id)
   );
 
 CREATE TABLE
-  messages(
+  messages (
     id SERIAL PRIMARY KEY,
     message VARCHAR(500),
     groupId INT,
     senderId INT,
-    lastMessage INT,
-    CONSTRAINT fk_groupId FOREIGN KEY(groupId) REFERENCES groupMessage(id)
+    read BOOL,
+    messageTime VARCHAR(50),
+    CONSTRAINT fk_groupId FOREIGN KEY (groupId) REFERENCES groupMessage (id)
   );
 
 INSERT INTO
-  messages(message, groupId, senderId, lastMessage)
+  users (name, password, lastVisit)
 VALUES
-  ('Barev', 2, 1, 5);
+  ('Arman', '123321', '');
 
 INSERT INTO
-  groupMessage(firstUser, secondUser)
+  messages (message, groupId, senderId, messageTime,read)
 VALUES
-  (1, 2,)
+  ('Barev', 1, 1, 'as',false);
+
+INSERT INTO
+  groupMessage (firstUser, secondUser)
+VALUES
+  (1, 3);
+
+UPDATE
+  messages
+SET
+  message = 'Vonch es?'
+WHERE
+  ID = 1;
