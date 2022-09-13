@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
             const notRead = messages.filter(el => !el.read && el.senderid !== firstUserId)
             await editReadVal(firstUserId, groupId)
             messages.sort((a, b) => a.id - b.id)
-            io.emit('get_messages', {
+            io.in(socket.id).emit('get_messages', {
                 groupId: groupId,
                 messages: messages,
                 firstUserId:firstUserId,
