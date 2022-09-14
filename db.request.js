@@ -26,7 +26,7 @@ const getUsers = async () => {
 const getUserId = async (userName) => {
     try {
         const response = await pool.query(`SELECT * FROM users where name = $1;`, [userName])
-        return response.rows?.[0]?.id
+        return response.rows[0].id
     } catch (error) {
         console.log(error)
     }
@@ -34,7 +34,7 @@ const getUserId = async (userName) => {
 const getUserName = async (userId) => {
     try {
         const response = await pool.query(`SELECT * FROM users where id=$1;`, [userId])
-        return response.rows?.[0]?.name
+        return response.rows[0].name
     } catch (error) {
         console.log(error)
     }
@@ -43,7 +43,7 @@ const getUserName = async (userId) => {
 const getGroupeId = async (firstUserId, secondUserId) => {
     try {
         const response = await pool.query(`SELECT * FROM groupmessage where firstuser=$1 AND seconduser=$2 OR firstuser=$2 AND seconduser=$1;`, [firstUserId, secondUserId])
-        return response.rows?.[0]?.id
+        return response.rows[0].id
     } catch (error) {
         console.log(error);
     }
