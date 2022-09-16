@@ -47,6 +47,10 @@ INSERT INTO
 VALUES
   (1, 3);
 
+DELETE FROM table_name WHERE condition;
+
+DROP 
+
 UPDATE
   messages
 SET

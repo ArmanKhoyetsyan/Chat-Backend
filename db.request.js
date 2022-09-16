@@ -10,7 +10,7 @@ const { Pool } = require('pg')
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
-    password: '15975324862Ax',
+    password:'15975324862',
     database: 'chat',
     port: '5432'
 });
@@ -52,7 +52,7 @@ const getGroupeId = async (firstUserId, secondUserId) => {
 const getMessages = async (groupId) => {
     try {
         const response = await pool.query(`SELECT * FROM messages where groupid =$1`, [groupId])
-        return response.rows
+        return response.rows.sort((a, b) =>  b.id - a.id)
     } catch (error) {
         console.log(error)
     }
