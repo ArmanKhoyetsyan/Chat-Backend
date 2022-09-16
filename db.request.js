@@ -1,19 +1,19 @@
 const { Pool } = require('pg')
 
-// const pool = new Pool({
-//     connectionString:process.env.DATABASE_URL,
-//     ssl: {
-//         rejectUnauthorized: false,
-//     },
-// });
-
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    password:'15975324862',
-    database: 'chat',
-    port: '5432'
+    connectionString:process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    },
 });
+
+// const pool = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     password:'15975324862',
+//     database: 'chat',
+//     port: '5432'
+// });
 
 const getUsers = async () => {
     try {
