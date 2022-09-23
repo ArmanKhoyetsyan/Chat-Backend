@@ -15,7 +15,8 @@ const {
     getUserName,
     editUserLastVisit,
     getGroupe,
-    editReadVal
+    editReadVal,
+    getLastMessage
 } = require('./db.request');
 const server = http.createServer(app);
 const port = process.env.PORT || 3030;
@@ -34,19 +35,21 @@ const connection = []
 app.post('/login', router)
 
 io.on('connection', (socket) => {
-    connection.push({ id: socket.id, getMessage: false, getMessagesCount: 0 })
+    connection.push({ id: socket.id, secondGetMessage: false, getMessagesCount: 0 })
 
     socket.on('get_groupe', async (data) => {
-
         const userId = await getUserId(data.userName)
         const groupers = await getGroups(userId)
-        const date = new Date().toISOString()
-        await editUserLastVisit(userId, date)
         for (let elem of groupers) {
             elem.firstuser = await getUserName(elem.firstuser)
             elem.seconduser = await getUserName(elem.seconduser)
+            const lastMessage = await getLastMessage(elem.id)
+            const lastMessageSender = await getUserName(lastMessage[0].senderid)
+            elem.lastMessage = {
+                message: lastMessage[0].message, sender: lastMessageSender, read: lastMessage[0].read
+            }
         }
-        io.emit('get_groupe', groupers)
+        io.in(socket.id).emit('get_groupe', groupers)
     })
 
     socket.on('get_messages', async (data) => {
@@ -54,12 +57,13 @@ io.on('connection', (socket) => {
             return el.id === socket.id
         })
         const date = new Date().toISOString()
-        user.getMessage = true
-        user.getMessagesCount = 20
         const secondUserId = await getUserId(data.secondUser)
         const firstUserId = await getUserId(data.firstUser)
+        const secondUserConnectionId = connection.find(el => el.userName === data.secondUser)
         await editUserLastVisit(firstUserId, date)
         const groupId = await getGroupeId(firstUserId, secondUserId)
+        user.secondGetMessage = groupId
+        user.getMessagesCount = 20
         if (groupId) {
             const messages = await getMessages(groupId)
             const message = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
@@ -70,9 +74,11 @@ io.on('connection', (socket) => {
                 messages: message,
                 firstUserId: firstUserId,
                 firstUser: data.firstUser,
+                secondUser: data.secondUser,
                 notRead: notRead,
                 connection: connection
             })
+            io.in(secondUserConnectionId?.id).emit('update_message')
         }
         // else {
         //     await createGroupe(secondUserId, firstUserId)
@@ -88,23 +94,37 @@ io.on('connection', (socket) => {
         //     })
         // }
     })
-    
+
     socket.on("get_former_messages", async (data) => {
         const user = connection.find(el => el.id === socket.id)
         user.getMessagesCount += 20
         let messages = await getMessages(data.groupId)
         if (user.getMessagesCount < messages.length) {
             messages = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
-            io.in(socket.id).emit('get_former_messages', { messages: messages , allMessages: false})
+            io.in(socket.id).emit('get_former_messages', { messages: messages, allMessages: false })
         } else {
             messages.sort((a, b) => a.id - b.id)
             io.in(socket.id).emit('get_former_messages', { messages: messages, allMessages: true })
         }
     })
 
+    // socket.on('get_last_messages', async (data) => {
+    //     const firstUserId = await getUserId(data.firstUser)
+    //     const secondUserId = await getUserId(data.secondUser)
+    //     const groupId = await getGroupeId(firstUserId, secondUserId)
+    //     socket.join(`room ${groupId}`)
+    //     if (groupId) {
+    //         const lastMessage = await getLastMessage(groupId)
+    //         io.in(`room ${groupId}`).emit('last_messages', {
+    //             lastMessage: lastMessage, senderI: lastMessage[0].senderid === firstUserId ? data.firstUser : data.secondUser
+    //         })
+    //     }
+    // })
+
     socket.on('send_message', async (data) => {
         const user = connection.find(el => el.id === socket.id)
         const senderId = await getUserId(data.sender)
+        socket.join(`room ${data.groupId}`)
         const group = await getGroupe(data.groupId)
         let secondUserId
         if (group?.[0]?.firstuser === senderId) {
@@ -113,13 +133,14 @@ io.on('connection', (socket) => {
             secondUserId = group?.[0]?.firstuser
         }
         const secondUserName = await getUserName(secondUserId)
-        const connectSecondUser = connection.find(el => el.userName === secondUserName && el.getMessage)
+        const secondUserConnectionId = connection.find(el => el.userName === secondUserName)
+        console.log(connection)
+        const connectSecondUser = connection.find(el => el.userName === secondUserName && el.secondGetMessage)
         await writeMessages(data.message, data.groupId, senderId, data.messageTime, connectSecondUser ? true : false)
         const messages = await getMessages(data.groupId)
-        const message = messages.slice(0, user.getMessagesCount).sort((a, b) => {
-            return a.id - b.id
-        })
-        io.emit('send_message', { messages: message, sender: data.sender, connection: connection })
+        const message = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
+        io.in(`room ${data.groupId}`).emit('send_message', { messages: message, sender: data.sender, connection: connection })
+        io.in(secondUserConnectionId?.id).emit('update_groupe')
     })
 
     socket.on('send_userName', (data) => {

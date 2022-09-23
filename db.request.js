@@ -10,7 +10,7 @@ const { Pool } = require('pg')
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
-    password:'15975324862',
+    password: '15975324862',
     database: 'chat',
     port: '5432'
 });
@@ -52,14 +52,24 @@ const getGroupeId = async (firstUserId, secondUserId) => {
 const getMessages = async (groupId) => {
     try {
         const response = await pool.query(`SELECT * FROM messages where groupid =$1`, [groupId])
-        return response.rows.sort((a, b) =>  b.id - a.id)
+        return response.rows.sort((a, b) => b.id - a.id)
     } catch (error) {
         console.log(error)
     }
 }
-
-const writeMessages = async (message, groupid, senderid, messageTime,read) => {
+const getLastMessage = async (groupId) => {
     try {
+        const response = await pool.query(`SELECT * FROM messages where groupid =$1`, [groupId])
+        const lastsMessage = response.rows.sort((a, b) =>  b.id - a.id)
+       return lastsMessage.slice(0,1)
+} catch (error) {
+    console.log(error)
+}
+
+}
+
+const writeMessages = async (message, groupid, senderid, messageTime, read) => {
+    try {        
         await pool.query(`INSERT INTO messages(message,groupid, senderid,messageTime,read) VALUES($1,$2,$3,$4,$5)`, [message, groupid, senderid, messageTime, read])
     } catch (error) {
         console.log(error)
@@ -118,5 +128,6 @@ module.exports = {
     getGroupeId,
     createGroupe,
     getUserName,
+    getLastMessage,
     getGroupe
 }
