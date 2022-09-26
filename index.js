@@ -154,10 +154,10 @@ io.on('connection', (socket) => {
         socket.join(`room ${data.groupId}`)
         const group = await getGroupe(data.groupId)
         let secondUserId
-        if (group?.[0]?.firstuser === senderId) {
-            secondUserId = group?.[0]?.seconduser
+        if (group[0].firstuser === senderId) {
+            secondUserId = group[0].seconduser
         } else {
-            secondUserId = group?.[0]?.firstuser
+            secondUserId = group[0].firstuser
         }
         const secondUserName = await getUserName(secondUserId)
         const secondUserConnectionId = connection.find(el => el.userName === secondUserName)
