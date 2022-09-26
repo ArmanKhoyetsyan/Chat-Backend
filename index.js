@@ -11,7 +11,6 @@ const {
     getMessages,
     writeMessages,
     getGroups,
-    createGroupe,
     getUserName,
     editUserLastVisit,
     getGroupe,
