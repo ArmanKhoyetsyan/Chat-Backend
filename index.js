@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
         const user = connection.find(el => {
             return el.id === socket.id
         })
-        if (groupId) {
+        if (groupId && user.secondGetMessage === groupId) {
             const messages = await getMessages(groupId)
             const message = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
             await editReadVal(firstUserId, groupId)
@@ -88,7 +88,6 @@ io.on('connection', (socket) => {
         if (groupId) {
             const messages = await getMessages(groupId)
             const message = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
-            const notRead = message.filter(el => !el.read && el.senderid !== firstUserId)
             await editReadVal(firstUserId, groupId)
             io.in(socket.id).emit('get_messages', {
                 groupId: groupId,
@@ -96,8 +95,7 @@ io.on('connection', (socket) => {
                 firstUserId: firstUserId,
                 firstUser: data.firstUser,
                 secondUser: data.secondUser,
-                notRead: notRead,
-                connection: connection
+                connection: connection,
             })
             io.in(secondUserConnectionId?.id).emit("update_message", {
                 groupId: groupId,
@@ -154,18 +152,21 @@ io.on('connection', (socket) => {
         socket.join(`room ${data.groupId}`)
         const group = await getGroupe(data.groupId)
         let secondUserId
-        if (group[0].firstuser === senderId) {
-            secondUserId = group[0].seconduser
+        if (group?.[0]?.firstuser === senderId) {
+            secondUserId = group?.[0]?.seconduser
         } else {
-            secondUserId = group[0].firstuser
+            secondUserId = group?.[0]?.firstuser
         }
         const secondUserName = await getUserName(secondUserId)
         const secondUserConnectionId = connection.find(el => el.userName === secondUserName)
-        const connectSecondUser = connection.find(el => el.userName === secondUserName && el.secondGetMessage)
+        const connectSecondUser = connection.find(el => el.userName === secondUserName && el.secondGetMessage === data.groupId)
         await writeMessages(data.message, data.groupId, senderId, data.messageTime, connectSecondUser ? true : false)
         const messages = await getMessages(data.groupId)
         const message = messages.slice(0, user.getMessagesCount).sort((a, b) => a.id - b.id)
-        io.in(`room ${data.groupId}`).emit('send_message', { messages: message, sender: data.sender, connection: connection })
+
+        connectSecondUser
+            ? io.in(`room ${data.groupId}`).emit('send_message', { messages: message, sender: data.sender, connection: connection })
+            : io.in(socket.id).emit('send_message', { messages: message, sender: data.sender, connection: connection })
         io.in(secondUserConnectionId?.id).emit('update_groupe')
     })
 
